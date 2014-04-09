@@ -17,14 +17,19 @@ parser.add_argument('-l','--limit',help = 'Limit', type=int, default=None)
 parser.add_argument('--version', action='version', version='%(prog)s 0.1')
 args=vars(parser.parse_args())
 
+#Opening connection to hadoop server via happybase
 c= happybase.Connection(host=args['host'],port=args['port'],transport=args['transport'])
 
+#Getting table instance
 t = c.table(args['table'])
+
+#Getting table batch instance
 b = t.batch()
 
-counterLimit = args['limit']
-if counterLimit is None:
-    counterLimit = 500
+#Setting batch limit
+batchLimit = args['limit']
+if batchLimit is None:
+    batchLimit = 500
 
 counter = 0
 total = 0
@@ -34,7 +39,7 @@ for key, data in rows:
     b.delete(key)
     counter += 1
     total += 1    
-    if (counter > counterLimit):       
+    if (counter > batchLimit):       
         b.send()
         counter = 0
 b.send()        
